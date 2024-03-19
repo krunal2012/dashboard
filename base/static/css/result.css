@@ -74,6 +74,7 @@ nav a:hover {
 .main-container {
     display: flex;
     flex-direction: row;
+    justify-content: center;
     height: 83vh; 
 }
 

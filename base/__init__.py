@@ -10,7 +10,7 @@ app.secret_key = 'EB;%n=*\B]?=&-})]o3bP?[!Sr(I?j^JaFbv(!ya+_lhvTA<CUV*QZm33b%}cy
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = \
-    'mysql+pymysql://root:root@localhost:3306/upload?charset=latin1'
+    'mysql+pymysql://root:root@localhost:3306/dashboard?charset=latin1'
 
 app.config['SQLALCHEMY_ECHO'] = True
 

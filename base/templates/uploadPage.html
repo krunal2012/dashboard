@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload File</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/upload.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/upload.css') }}?v={{ timestamp }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v={{ timestamp }}"> 
 
 </head>
 <body>
+    <div class="overlay loading-overlay" id="loading-overlay">Processing Please Wait</div>
     <header>
         <div class="logo-container">
             <img src="{{ url_for('static', filename='images/alogo.png') }}" alt="Logo">
@@ -22,7 +23,6 @@
             </ul>
         </nav>
     </header>
-    
     <div class="container">
         <form id="uploadForm" action="/upload-file" method="post" enctype="multipart/form-data">
             <label><h2>Select Model: </h2></label>
@@ -40,18 +40,18 @@
                     <p>Click to upload or drag and drop</p>
                     <div class="dropzone-area">
                         <div class="file-upload-icon"></div>
+                        <div class="loader" id="loader"></div>
                         <input type="file" required id="upload-file" name="uploadedFile" onchange="updateFileName(this)">
-                        <p class="file-info">No Files Selected</p>
+                        <p class="file-info">No File Selected</p>
                     </div>
                     <div class="dropzone-actions">
-                       <button type="reset">Cancel</button>
-                       <button id="submit-button" type="submit">Upload</button>
+                        <button type="reset">Cancel</button>
+                        <button id="submit-button" type="submit" onclick="uploadVideo()">Upload</button>
                     </div>
                 </div>
             </div>
         </form>
     </div>
-
     <footer>
         <div class="footer-content">
         </div>
@@ -66,17 +66,6 @@
         </div>
     </footer>
 
-    <script>
-        function updateFileName(input) {
-            const fileInfo = document.querySelector('.file-info');
-            
-            if (input.files.length > 0) {
-                const fileName = input.files[0].name;
-                fileInfo.textContent = fileName;
-            } else {
-                fileInfo.textContent = 'No Files Selected';
-            }
-        }
-    </script>
+    <script src="{{ url_for('static', filename='js/upload.js')}}?v={{ timestamp }}"></script>
 </body>
 </html>

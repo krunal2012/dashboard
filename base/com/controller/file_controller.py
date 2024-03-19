@@ -32,13 +32,12 @@ def validate_login():
 def load_dashboard_page():
     try:    
         if session.get('logged_in', False):    
-            return render_template('dashboard.html')
+            return render_template('dashboardPage.html')
         flash("Login Required..!!")
         return redirect('/')
 
     except Exception as e:
         return render_template('errorPage.html', error=e)
-
     
         
 @app.route('/upload')
@@ -73,7 +72,7 @@ def load_results():
             file_id = request.args.get('file_id')
             model_name = request.args.get('model_name')
             vo_list = get_file_data(file_id, model_name)
-            return render_template('results.html', model_name=model_name, vo_list=vo_list)
+            return render_template('resultsPage.html', model_name=model_name, vo_list=vo_list)
         flash("Login Required..!!")
         return redirect('/')
     except Exception as e:

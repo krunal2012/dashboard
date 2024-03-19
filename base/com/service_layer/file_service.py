@@ -1,11 +1,13 @@
 import cv2
 import os
+import numpy as np
 from ultralytics import YOLO
 from werkzeug.utils import secure_filename
 from base import app
 from base.com.vo.file_vo import FileVO, PotholeVO, CattleVO
 from base.com.dao.file_dao import FileDAO, PotholeDAO, CattleDAO
 import torch
+import cvzone
 
 
 def validate_user(username, password):
@@ -30,7 +32,7 @@ def cattle_count_save(cattle_file_id, frame_id, counts):
     cattle_vo.cattle_counts = counts
     cattle_dao = CattleDAO()
     cattle_dao.insert_data(cattle_vo)
-    
+        
     
 def perform_inference(uploaded_file, model_name):
     try:
@@ -74,19 +76,38 @@ def perform_inference(uploaded_file, model_name):
         # if uploaded file is an image
         if infer_file.endswith(('.jpg', '.png', '.jpeg')):
             image = cv2.imread(save_inputs)
+            image = cv2.resize(image, (720, 480))
             results = model.predict(image, classes=classes, device=device)
+            if results[0].boxes is not None:
+                boxes = results[0].boxes.xyxy.cpu()
+                for box in boxes:
+                    x1, y1, x2, y2 = box
+                    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2) 
+                    cv2.rectangle(image, (x1, y1), (x2, y2), (0, 100, 250), 2)
+            else:
+                boxes = results[0].obb.xyxyxyxy.cpu()
+                for box in boxes:
+                    points = np.array(box, np.int32)
+                    points = points.reshape((-1,1,2))
+                    cv2.polylines(image, [points], isClosed=True, color=(0, 100, 250), thickness=2)
             counts = len(results[0])
-            annoted = results[0].plot()
-            cv2.imwrite(save_outputs, annoted)
             frame_id = 1
             file_id = file_dao.get_file_id(infer_file)
             if model_name == 'pothole':
                 pothole_count_save(file_id, frame_id, counts)
+                cvzone.putTextRect(image, f'Pothole Counts: {counts}', [30, 40], scale=1, thickness=2, colorR=(0,0,0), colorT=(0,100,250),border=2, colorB=(0,100,250),font=cv2.FONT_HERSHEY_SIMPLEX)
+                
             elif model_name == 'cattle':
                 cattle_count_save(file_id, frame_id, counts)
+                cvzone.putTextRect(image, f'Cattle Counts: {counts}', [30, 40], scale=1, thickness=2, colorR=(0,0,0), colorT=(0,100,250),border=2, colorB=(0,100,250),font=cv2.FONT_HERSHEY_SIMPLEX)
+                
+            else:
+                cvzone.putTextRect(image, f'Garbage Counts: {counts}', [30, 40], scale=1, thickness=2, colorR=(0,0,0), colorT=(0,100,250),border=2, colorB=(0,100,250),font=cv2.FONT_HERSHEY_SIMPLEX)
+
+            cv2.imwrite(save_outputs, image)
             return {'file_id': file_id, 'model_name': model_name}
         
-        elif infer_file.endswith(('.mp4', '.mov', '.avi')):
+        elif infer_file.endswith(('.mp4', '.mov', '.avi', 'mkv')):
             cap = cv2.VideoCapture(save_inputs)
             # Get video properties (fps, width, height)
             fps = cap.get(cv2.CAP_PROP_FPS)
@@ -110,18 +131,33 @@ def perform_inference(uploaded_file, model_name):
                     frame_number += 1
                     
                     if frame_number % actual_fps == 0:
-                        # Skip frames if frame number is not multiple of frame interval
-                        # Prediction logic
                         frame_id += 1
                         results = model.predict(frame, classes=classes, device=device)
                         counts = len(results[0])
-                        # counts += frame_count
-                        annotated_frame = results[0].plot()
-                        out.write(annotated_frame)
+                        if results[0].boxes is not None:
+                            boxes = results[0].boxes.xyxy.cpu()
+                            for box in boxes:
+                                x1, y1, x2, y2 = box
+                                x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2) 
+                                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 100, 250), 2)
+                        else:
+                            boxes = results[0].obb.xyxyxyxy.cpu()
+                            for box in boxes:
+                                points = np.array(box, np.int32)
+                                points = points.reshape((-1,1,2))
+                                cv2.polylines(frame, [points], isClosed=True, color=(0, 100, 250), thickness=2)
                         if model_name == 'pothole':
                             pothole_count_save(file_id, frame_id, counts)
+                            cvzone.putTextRect(frame, f'Pothole Counts: {counts}', [30, 40], scale=1, thickness=2, colorR=(0,0,0), colorT=(0,100,250),border=2, colorB=(0,100,250),font=cv2.FONT_HERSHEY_SIMPLEX)
+                            
                         elif model_name == 'cattle':
                             cattle_count_save(file_id, frame_id, counts)
+                            cvzone.putTextRect(frame, f'Cattle Counts: {counts}', [30, 40], scale=1, thickness=2, colorR=(0,0,0), colorT=(0,100,250),border=2, colorB=(0,100,250),font=cv2.FONT_HERSHEY_SIMPLEX)
+                            
+                        else:
+                            cvzone.putTextRect(frame, f'Garbage Counts: {counts}', [30, 40], scale=1, thickness=2, colorR=(0,0,0), colorT=(0,100,250),border=2, colorB=(0,100,250),font=cv2.FONT_HERSHEY_SIMPLEX)
+                            
+                        out.write(frame)
                             
                     else:
                         continue

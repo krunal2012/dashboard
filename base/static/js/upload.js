@@ -24,6 +24,8 @@ document.addEventListener("DOMContentLoaded", function() {
             alert("Please select a video or image file.");
             event.preventDefault();
         }
+
+        showLoader();
     });
 
     function validateFileType(inputElement) {
@@ -90,4 +92,18 @@ document.addEventListener("DOMContentLoaded", function() {
         const myFile = document.getElementById("upload-file");
         console.log(myFile.files[0]);
     });
+});
+
+function showLoader() {
+    document.getElementById('loader').style.display = 'block';
+    document.getElementById('loading-overlay').style.display = 'block';
+}
+
+function hideLoader() {
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('loading-overlay').style.display = 'none';
+}
+
+window.addEventListener('load', function() {
+    hideLoader();
 });

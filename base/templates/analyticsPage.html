@@ -32,7 +32,7 @@
                 </div>
                 <div class="button-container">
                     <a class="link-button" href="/upload">Upload Again</a>
-                    <a class="link-button" href="{{ url_for('static', filename='outputs/' + vo_list[0][1].file_name) }}" download>Download Video</a>
+                    <a class="link-button" id="downloadChartButton">Download Chart</a>
                     <a class="link-button" onclick="goBack()">Back</a>            
                 </div>
             </div>
@@ -123,11 +123,28 @@
             data: {
                 labels: frameIds,
                 datasets: [{
-                    label: 'Counts',
-                    data: counts,
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
+                    label: 'Counts', // Label for the dataset
+                    data: counts, // Actual data points
+                    fill: true, // Fill the area under the line
+                    backgroundColor: 'rgba(0, 0, 255, 0.4)', // Fill color with alpha value less than 1
+                    borderColor: 'rgb(0, 0, 255)', // Border color for the line
+                    tension: 0.2, // How much the line should be smoothed
+                    borderWidth: 3, // Border width for the line
+                    pointBackgroundColor: 'rgb(0, 0, 100)', // Color for the points on the line
+                    pointBorderColor: 'rgb(75, 192, 192)', // Border color for the points
+                    pointBorderWidth: 2, // Border width for the points
+                    pointRadius: 4, // Radius of the points
+                    pointHoverRadius: 6, // Radius of the points on hover
+                    pointHitRadius: 10, // Radius for hit detection on the points
+                    pointStyle: 'circle', // Style for the points (circle, cross, crossRot, dash, line, rect, rectRounded, rectRot, star, triangle)
+                    showLine: true, // Whether to show the line or not
+                    stepped: false, // Whether the line is stepped or not
+                    spanGaps: false, // Whether to draw the line between points with missing data
+                    borderDash: [], // Length and spacing of dashes for dashed lines
+                    borderDashOffset: 1, // Offset for dashed lines
+                    hoverBackgroundColor: 'rgba(0, 0, 255, 0.8)', // Background color on hover
+                    hoverBorderColor: 'rgba(75, 192, 192, 0.8)', // Border color on hover
+                    hoverBorderWidth: 2 // Border width on hover
                 }]
             },
             options: {
@@ -135,8 +152,22 @@
                     y: {
                         beginAtZero: true
                     }
+                },
+                plugins: {
+                    filler: {
+                        propagate: true // Extend the fill color to the edge of the chart
+                    }
                 }
             }
+        });
+
+        document.getElementById('downloadChartButton').addEventListener('click', function() {
+            var canvas = document.getElementById('myChart');
+            var url = canvas.toDataURL('image/png');
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = 'chart.png';
+            link.click();
         });
     </script>
 </body>
