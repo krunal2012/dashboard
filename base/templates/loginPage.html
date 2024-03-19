@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v={{ timestamp }}"> 
+    <style>
+        /* Import the "Secular One" font */
+        @import url('https://fonts.googleapis.com/css2?family=Secular+One&display=swap');
+
+        body {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Secular One', sans-serif; 
+            margin: 0;
+            padding: 0;
+            background-image: url("{{ url_for('static', filename='images/back.jpg') }}");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        .my-div {
+            background: rgba(0, 0, 10, 0.1);
+            backdrop-filter: blur(2px);
+            display: inline-block;
+            padding: 50px 80px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        table {
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 16px; 
+            color: #000;
+            letter-spacing: 1.5px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px; 
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+  
+    <div class="my-div">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+                {% for message in messages %}
+                    <p style="color: red;">{{ message }}</p>
+                {% endfor %}
+        {% endif %}
+      {% endwith %}
+        <form action="/login" method="post">
+            <table>
+                <tr>
+                    <td>
+                        <label for="user-name">Username:</label>
+                        <input type="text" name="username" placeholder="username" value="admin">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="password">Password:</label>
+                        <input type="password" name="password" placeholder="password" value="admin@21189">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button>Login</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>

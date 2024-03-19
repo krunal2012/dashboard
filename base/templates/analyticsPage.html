@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}?v={{ timestamp }}"> 
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/alogo.png') }}" alt="Logo">
+            <span>Mission-Smart Cities</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/dashboard">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="main-container">
+        <div class="file-container">
+            <div class="file-canvas">
+                <p class="file-name">Frame vs Count</p>
+                <div class="chart-container" id="chartContainer">
+                    <canvas id="myChart"></canvas>
+                </div>
+                <div class="button-container">
+                    <a class="link-button" href="/upload">Upload Again</a>
+                    <a class="link-button" href="{{ url_for('static', filename='outputs/' + vo_list[0][1].file_name) }}" download>Download Video</a>
+                    <a class="link-button" onclick="goBack()">Back</a>            
+                </div>
+            </div>
+        </div>    
+        <div class="table-container">
+            <div class="table-canvas">
+                {% if vo_list %}
+                    {% if model_name == 'pothole' %}
+                    <div class="table-data" id="tableData">
+                        <table border="1px">
+                            <thead>
+                                <tr>
+                                    <td>Frame No.</td>
+                                    <td>Pothole Counts</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pothole, _ in vo_list %}
+                                    <tr data-time="{{ pothole.frame_id }}">
+                                        <td>{{ pothole.frame_id }}</td>
+                                        <td>{{ pothole.pothole_counts }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div><br>
+                    {% elif model_name == 'cattle' %}
+                    <div class="table-data" id="tableData">
+                        <table border="1px">
+                            <thead>
+                                <tr>
+                                    <td>Frame No.</td>
+                                    <td>Cattle Counts</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cattle, _ in vo_list %}
+                                    <tr data-time="{{ cattle.frame_id }}">
+                                        <td>{{ cattle.frame_id }}</td>
+                                        <td>{{ cattle.cattle_counts }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div><br>
+                    {% elif model_name == 'garbage' %}
+                        <p>No counts for the Garbage Model.</p>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <footer>
+        <div class="footer-content">
+        </div>
+        <div class="footer-bottom">
+            <p>copyright &copy; <a href="#">Smart City</a></p>
+            <div class="footer-menu">
+                <ul class="f-menu">
+                    <li><a href="">Contact</a></li>
+                    <li><a href="">Blog</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Extract data from the HTML table and prepare it for chart
+
+        function goBack() {
+            window.history.back();
+        }
+
+        var frameIds = [];
+        var counts = [];
+        var rows = document.querySelectorAll("#tableData tbody tr");
+        rows.forEach(function(row) {
+            var frameId = row.querySelector("td:first-child").innerText;
+            var count = parseInt(row.querySelector("td:last-child").innerText);
+            frameIds.push(frameId);
+            counts.push(count);
+        });
+
+        // Create a line chart
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: frameIds,
+                datasets: [{
+                    label: 'Counts',
+                    data: counts,
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
